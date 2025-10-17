@@ -20,7 +20,7 @@ const Navbar = () => {
             <div className="flex justify-between items-center max-w-7xl mx-auto">
                 {/* Logo / Title */}
                 <div
-                    className="flex items-center gap-2 font-bold text-2xl cursor-pointer hover:scale-105 transition-transform"
+                    className="flex items-center gap-2 font-bold text-2xl text-white cursor-pointer hover:scale-105 transition-transform"
                     onClick={() => navigate(token ? '/' : '/login')}
                 >
                     <FaTasks size={28} />
