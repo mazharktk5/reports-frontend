@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getToken } from "../utils/auth";
-import { createReport } from "../services/api"; // use helper
+import { createReport } from "../services/api"; // API helper
 import ReportForm from "../components/ReportForm";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CreateReport = () => {
     const navigate = useNavigate();
@@ -13,6 +15,7 @@ const CreateReport = () => {
         endTime: "",
     });
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -22,17 +25,24 @@ const CreateReport = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
+        setLoading(true);
         try {
             const token = getToken();
-            await createReport(token, formData); // using API helper
-            navigate("/"); // go back to dashboard
+            await createReport(token, formData);
+            toast.success("Report created successfully!");
+            navigate("/"); // redirect to dashboard
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to create report");
+            const msg = err.response?.data?.message || "Failed to create report";
+            setError(msg);
+            toast.error(msg);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <div className="p-4 sm:p-6 max-w-md mx-auto flex flex-col justify-center bg-white rounded-xl shadow-md w-full">
+            <ToastContainer position="top-right" autoClose={3000} />
             <h2 className="text-2xl font-bold text-green-600 mb-4 text-center">
                 Create New Report
             </h2>
@@ -41,7 +51,8 @@ const CreateReport = () => {
                 formData={formData}
                 onChange={handleChange}
                 onSubmit={handleSubmit}
-                submitLabel="Save Report"
+                submitLabel={loading ? "Saving..." : "Save Report"}
+                disabled={loading}
             />
         </div>
     );

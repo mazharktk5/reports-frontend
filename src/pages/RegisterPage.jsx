@@ -3,11 +3,14 @@ import { FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { register } from "../services/api";
 import AuthForm from "../components/AuthForm";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const RegisterPage = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ name: "", email: "", password: "" });
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -17,12 +20,17 @@ const RegisterPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
+        setLoading(true);
         try {
-            await register(formData); // use API helper
-            alert("Registration successful! Please login.");
+            await register(formData);
+            toast.success("Registration successful! Please login.");
             navigate("/login");
         } catch (err) {
-            setError(err.response?.data?.message || "Registration failed");
+            const msg = err.response?.data?.message || "Registration failed";
+            setError(msg);
+            toast.error(msg);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -34,12 +42,14 @@ const RegisterPage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4 sm:p-6">
+            <ToastContainer position="top-right" autoClose={3000} />
             <AuthForm
                 title="Register"
                 fields={fields}
                 onChange={handleChange}
                 onSubmit={handleSubmit}
-                submitLabel="Register"
+                submitLabel={loading ? "Registering..." : "Register"}
+                disabled={loading}
                 error={error}
                 linkText="Already have an account? Login"
                 linkTo="/login"

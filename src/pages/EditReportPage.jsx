@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getToken } from "../utils/auth";
 import { getMyReports, editReport } from "../services/api";
 import ReportForm from "../components/ReportForm";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const EditReport = () => {
     const navigate = useNavigate();
@@ -15,6 +17,7 @@ const EditReport = () => {
         endTime: "",
     });
     const [loading, setLoading] = useState(true);
+    const [submitLoading, setSubmitLoading] = useState(false);
     const [error, setError] = useState("");
 
     useEffect(() => {
@@ -33,6 +36,7 @@ const EditReport = () => {
                 });
             } catch (err) {
                 setError(err.response?.data?.message || err.message);
+                toast.error(err.response?.data?.message || err.message);
             } finally {
                 setLoading(false);
             }
@@ -48,12 +52,18 @@ const EditReport = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
+        setSubmitLoading(true);
         try {
             const token = getToken();
             await editReport(token, id, formData);
-            navigate("/");
+            toast.success("Report updated successfully!");
+            navigate("/"); // redirect to dashboard
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to update report");
+            const msg = err.response?.data?.message || "Failed to update report";
+            setError(msg);
+            toast.error(msg);
+        } finally {
+            setSubmitLoading(false);
         }
     };
 
@@ -61,13 +71,15 @@ const EditReport = () => {
 
     return (
         <div className="p-4 sm:p-6 max-w-md mx-auto bg-white rounded-xl shadow-md">
+            <ToastContainer position="top-right" autoClose={3000} />
             <h2 className="text-2xl font-bold text-blue-600 mb-4">Edit Report</h2>
             {error && <p className="text-red-600 mb-2">{error}</p>}
             <ReportForm
                 formData={formData}
                 onChange={handleChange}
                 onSubmit={handleSubmit}
-                submitLabel="Update Report"
+                submitLabel={submitLoading ? "Updating..." : "Update Report"}
+                disabled={submitLoading}
             />
         </div>
     );

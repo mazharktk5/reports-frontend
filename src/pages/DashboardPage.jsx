@@ -4,6 +4,7 @@ import { getToken } from "../utils/auth";
 import { getMyReports } from "../services/api";
 import DashboardHeader from "../components/DashboardHeader";
 import ReportsGrid from "../components/ReportsGrid";
+import axios from "axios";
 
 const Dashboard = () => {
     const [reports, setReports] = useState([]);
@@ -15,6 +16,11 @@ const Dashboard = () => {
         try {
             const token = getToken();
             const res = await getMyReports(token);
+            // const res = await axios.get("/api/reports/my", {
+            //     headers: {
+            //         Authorization: `Bearer ${token}`,
+            //     },
+            // });
             setReports(res.data);
         } catch (err) {
             console.error(err);

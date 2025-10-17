@@ -4,11 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { login } from "../services/api";
 import { setToken } from "../utils/auth";
 import AuthForm from "../components/AuthForm";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ email: "", password: "" });
-    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -17,15 +19,18 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError("");
+        setLoading(true);
         try {
             const res = await login(formData);
             setToken(res.data.token);
 
             const role = res.data.user.role;
+            toast.success("Login successful!");
             navigate(role === "admin" ? "/admin" : "/");
         } catch (err) {
-            setError(err.response?.data?.message || "Login failed");
+            toast.error(err.response?.data?.message || "Login failed");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -36,13 +41,13 @@ const Login = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4 sm:p-6">
+            <ToastContainer position="top-right" autoClose={3000} />
             <AuthForm
                 title="Login"
                 fields={fields}
                 onChange={handleChange}
                 onSubmit={handleSubmit}
-                submitLabel="Login"
-                error={error}
+                submitLabel={loading ? "Logging in..." : "Login"}
                 linkText="Don't have an account? Register"
                 linkTo="/register"
             />
