@@ -9,11 +9,13 @@ const UsersTable = () => {
     const [loading, setLoading] = useState(true);
     const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
+    const API_URL = import.meta.env.VITE_BACKEND_URL;
+
     const fetchUsers = async () => {
         setLoading(true);
         try {
             const token = localStorage.getItem("token");
-            const res = await axios.get("http://localhost:3000/admin/users", {
+            const res = await axios.get(`${API_URL}/admin/users`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setUsers(res.data);
@@ -32,7 +34,7 @@ const UsersTable = () => {
     const deleteUser = async (id) => {
         try {
             const token = localStorage.getItem("token");
-            await axios.delete(`http://localhost:3000/admin/users/${id}`, {
+            await axios.delete(`${API_URL}/admin/users/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setUsers(users.filter((u) => u.id !== id));

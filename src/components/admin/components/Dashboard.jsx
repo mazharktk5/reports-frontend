@@ -12,10 +12,13 @@ const Dashboard = () => {
             try {
                 const token = localStorage.getItem("token");
                 const headers = { Authorization: `Bearer ${token}` };
+                const baseUrl = import.meta.env.VITE_BACKEND_URL;
+
                 const [reportsRes, usersRes] = await Promise.all([
-                    axios.get("http://localhost:3000/admin/reports/count", { headers }),
-                    axios.get("http://localhost:3000/admin/users/count", { headers }),
+                    axios.get(`${baseUrl}/admin/reports/count`, { headers }),
+                    axios.get(`${baseUrl}/admin/users/count`, { headers }),
                 ]);
+
                 setTotalReports(reportsRes.data.count);
                 setTotalUsers(usersRes.data.count);
             } catch (err) {
